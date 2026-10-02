@@ -44,16 +44,16 @@ kI=1094.08734074373
 #289.661,7061.510,0.391
 Cr=1E-6
 Re=1/(Cr*kI)
-numPID=[1]
-denPID=[Re*Cr,0]
-PID=ctrl.tf(numPID,denPID)
+numI=[1]
+denI=[Re*Cr,0]
+I=ctrl.tf(numI,denI)
 print(f"Capacitancia Cr: {Cr} Faradios\n")
 print(f"Resistencia Re: {Re} Ohms\n")
-print(f"Funcion de transferencia del controlador PID: {PID}\n")
+print(f"Funcion de transferencia del controlador I: {I}\n")
 
 # Sistema en lazo cerrado
-sysPID=ctrl.feedback(ctrl.series(PID,sys),1,sign=-1)
-print(f"Funcion de transferencia del sistema en lazo cerrado: {sysPID}\n")
+sysI=ctrl.feedback(ctrl.series(I,sys),1,sign=-1)
+print(f"Funcion de transferencia del sistema en lazo cerrado: {sysI}\n")
 
 #COLORES
 clr1 = np.array([44, 87, 69])/255
@@ -63,25 +63,25 @@ clr2 = np.array([235, 125, 0])/255
 clr3 = np.array([46, 41, 16])/255
 #FUNCIONES DE RESPUESTA LAZO ABIERTO Y CERRADO
 def openloop(t,sys,u):
-    _,PAu = ctrl.forced_response(sys,t,u,x0)
-    return PAu
+    _,Ve = ctrl.forced_response(sys,t,u,x0)
+    return Ve
 
-def closedloop(t,sysPID,u):
-    _,PIDu = ctrl.forced_response(sysPID,t,u,x0)
-    return PIDu
+def closedloop(t,sysI,u):
+    _,Iu = ctrl.forced_response(sysI,t,u,x0)
+    return Iu
 
 #Respuestas simulaciones numericas
 for i in range(0,4):
-    PAu = openloop(t,sys,u[:,i])
-    PIDu = closedloop(t,sysPID,u[:,i])
+    Ve = openloop(t,sys,u[:,i])
+    Iu = closedloop(t,sysI,u[:,i])
     fg = plt.figure(i+1)
     fg.set_size_inches(w,h)
     plt.rcParams['font.size'] = 11
     plt.rcParams['font.family'] = 'serif'
     plt.rcParams['font.serif'] = 'Times New Roman'
     plt.plot(t,u[:,i],'-',color=clr1,label='Ve(t)')
-    plt.plot(t,PAu,'--',color=clr2,label='Vs(t)')
-    plt.plot(t,PIDu,':',linewidth=2.5,color=clr3,label='I(t)')
+    plt.plot(t,Ve,'--',color=clr2,label='Vs(t)')
+    plt.plot(t,Iu,':',linewidth=2.5,color=clr3,label='I(t)')
     plt.xlim(0,10);plt.xticks(np.arange(0,11,1))
     if i == 0 or i == 1 or i == 2:
         plt.ylim(-0.1,1.2);plt.yticks(np.arange(-0.1,1.3,0.1))
